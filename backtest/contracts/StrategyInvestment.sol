@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 contract StrategyInvestment{
 	struct Strategy{
+		uint ID;
 		uint IDinUser;
 		// the strategy owner will get dividendRate * income if income > 0.
 		string Name;
@@ -78,7 +79,7 @@ contract StrategyInvestment{
 	function _addStrategy(address addr,string memory _sName,int _dRate,int indicates) private{
 		// usersCount++;
 		uint id = users[addr].strategiesCount;
-		users[addr].strategies[id] = Strategy(id,_sName,_dRate,addr,indicates,true);
+		users[addr].strategies[id] = Strategy(strategiesCount,id,_sName,_dRate,addr,indicates,true);
 		
 		strategies[strategiesCount] = users[addr].strategies[id];
 

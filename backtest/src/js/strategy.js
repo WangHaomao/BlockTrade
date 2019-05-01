@@ -1,3 +1,4 @@
+var requestRes = GetRequest();
 App = {
   // web3Provider: null,
   // contracts: {},
@@ -7,6 +8,7 @@ App = {
   contracts: {},
 
   init: function() {
+
     return App.initWeb3();
   },
 
@@ -27,6 +29,7 @@ App = {
     //     console.log(accounts);
     // });
 
+    
     return App.initContract();
   },
 
@@ -71,20 +74,22 @@ App = {
       var candidatesSelect = $('#candidatesSelect');
       candidatesSelect.empty();
 
-      for (var i = 0; i < strategiesCount; i++) {
-        var x = i;
-        console.log(electionInstance.strategies(i));
-
-        electionInstance.strategies(i).then(function(strategy) {
+      electionInstance.strategies(requestRes['sid']).then(function(strategy) {
           var id = strategy[0];
           var name = strategy[2];
           var voteCount = strategy[3];
           // Render candidate Result
           // console.log(strategy[3]);
-          var candidateTemplate = "<tr><th>" + id + "</th><td><a onclick='toStrategy("+ id +")'>" + name + "</a></td><td>" + voteCount + "</td></tr>"
+          var candidateTemplate = "<tr><th>" + id 
+                                + "</th><td>" + name 
+                                + "</td><td>" + voteCount
+                                + "</td><td>" + strategy[4] 
+                                + "</td><td>" + strategy[5]
+                                + "</td></tr>" 
           candidatesResults.append(candidateTemplate);
-        });
-      }
+      });
+
+
       loader.hide();
       content.show();
     }).catch(function(error) {
@@ -99,7 +104,15 @@ $(function() {
     App.init();
   });
 });
-
-function toStrategy(sid){
-  window.location.href = "/strategy.html?sid=" + sid;
+function GetRequest() {
+    var url = location.search; //获取url中"?"符后的字串
+    var theRequest = new Object();
+    if (url.indexOf("?") != -1) {
+        var str = url.substr(1);
+        strs = str.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            theRequest[strs[i].split("=")[0]] = decodeURIComponent(strs[i].split("=")[1]);
+        }
+    }
+    return theRequest;
 };
