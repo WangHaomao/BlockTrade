@@ -10,7 +10,8 @@ mkdir backtest
 cd backtest
 truffle unbox pet-shop
 
-truffle(development)> let instance = await MetaCoin.deployed()
+truffle(development)> let instance = await StrategyInvestment.deployed()
+
 truffle(development)> let accounts = await web3.eth.getAccounts()
 
 npm run dev
