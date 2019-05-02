@@ -1,5 +1,7 @@
 # Blockchain-based trading strategy selection
-This a repository about BackTest with BlockChain in MSDB 6000D, Introduce to Blockchain
+A repository in project  **blockchain-based trading strategy selection** in MSDB 6000D, Introduce to Blockchain.
+
+Also a tutorial of Dapps development.
 
 ## Preparing before start
 
