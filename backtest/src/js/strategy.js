@@ -57,7 +57,6 @@ App = {
     // Load account data
     web3.eth.getCoinbase(function(err, account) {
       if (err == null) {
-        console.log(App.account);
         App.account = account;
         $("#accountAddress").html("Your Account: " + account);
       }
@@ -74,13 +73,19 @@ App = {
       var candidatesSelect = $('#candidatesSelect');
       candidatesSelect.empty();
 
+      
+      
+      electionInstance.users(App.account).then(function(user) {
+          $("#accountMoney").html("Your Money: " + user[0]);
+      });
+
       electionInstance.strategies(requestRes['sid']).then(function(strategy) {
           var id = strategy[0];
           var name = strategy[2];
           var voteCount = strategy[3];
           // Render candidate Result
           // console.log(strategy[3]);
-          var candidateTemplate = "<tr><th>" + id 
+          var candidateTemplate = "<tr><th id = \"strategyID\">" + id 
                                 + "</th><td>" + name 
                                 + "</td><td>" + voteCount
                                 + "</td><td>" + strategy[4] 
@@ -94,6 +99,23 @@ App = {
       content.show();
     }).catch(function(error) {
       console.warn(error);
+    });
+  },
+
+  investigate: function() {
+    var strategyId = $('#strategyID').val();
+    var principal = $('#principal').val();
+    /*add a check for principal*/
+
+    App.contracts.StrategyInvestment.deployed().then(function(instance) {
+      return instance.investigate(principal,strategyId, { from: App.account });
+    }).then(function(result) {
+      // Wait for votes to update
+      // $("#content").hide();
+      // $("#loader").show();
+      console.log(result);
+    }).catch(function(err) {
+      console.error(err);
     });
   }
 

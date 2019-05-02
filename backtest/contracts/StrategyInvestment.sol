@@ -41,12 +41,12 @@ contract StrategyInvestment{
 		_addUser(addr_index07);
 
 		string memory name1 = "strategy1";
-		string memory name2 = "strategy2";
+		string memory name2 = "WANG YUxian s incoming strategy";
 		string memory name3 = "Li Haoyang的超级无敌宇宙策略";
 
 		_addStrategy(addr_index07,name1,5,3);
 		_addStrategy(addr_index07,name2,5,122);
-		_addStrategy(addr_index03,name3,3,7);
+		_addStrategy(addr_index03,name3,10,10);
 	}
 
 	function _addUser(address _addr) private returns(bool){
@@ -57,19 +57,19 @@ contract StrategyInvestment{
 		// newUser.holdCurrency;
 		newUser.userAddress = _addr;
 		users[_addr] = newUser;
-		users[_addr].holdCurrency = 0;
+		users[_addr].holdCurrency = 100; // 100.00 actually
 		users[_addr].strategiesCount = 0;
 		users[_addr].validSCount = 0;
 		users[_addr].isValid = true;
 
 		return true;
 	}
-	function _operateUserCurrency(address userAddress, int opeN) private returns(bool){
-		if(opeN < 0 && users[userAddress].holdCurrency + opeN < 0){
-			return false;
-		}
+	function _operateUserCurrency(address userAddress, int opeN) private{
+		// if(opeN < 0 && users[userAddress].holdCurrency + opeN < 0){
+		// 	return false;
+		// }
 		users[userAddress].holdCurrency = users[userAddress].holdCurrency + opeN;
-		return true;
+		// return true;
 	}
 
 	function addStrategy(string memory _sName,int _dRate,int indicates) public{
@@ -86,33 +86,27 @@ contract StrategyInvestment{
 		users[addr].strategiesCount++;
 		strategiesCount++;
 	}
-
-	function investigate(int principal, uint sCount) public returns(bool){
+	function investigate(int principal, uint sCount) public {
 		/*
 			principal: investment principal
 			sCount: strategiesCount
 		*/
-		assert(!strategies[sCount].isValid);
+		
+		address strategyOwner = strategies[sCount].ownerAddress;
+		address investor = msg.sender;
 
-		address addrB = msg.sender;
-		// 余额不足
-		if(!_operateUserCurrency(addrB,-1 * principal)) return false;
-		Strategy memory cSt = strategies[sCount];
+		int totalIncome = principal * strategies[sCount].indicates;
+		if(totalIncome > principal){
+			if(strategyOwner != investor){
+				int dividendFee = (totalIncome - principal) * strategies[sCount].dividendRate;
 
-		/*investment*/
-		// uint rate = cSt.indicates * 
-		int totalIcome = cSt.indicates *  principal; //* random num
 
-		if(totalIcome > principal){
-			address addrA = cSt.ownerAddress;
-			// 分红
-			int developerDividend = (totalIcome - principal) * cSt.dividendRate;
-			_operateUserCurrency(addrA,developerDividend);
-
-			totalIcome = totalIcome - developerDividend;
+				dividendFee = dividendFee / 100;
+				totalIncome = totalIncome - dividendFee;
+				_operateUserCurrency(strategyOwner,dividendFee);
+			}
 		}
-		// B 获得本金 + 利息
-		_operateUserCurrency(addrB,totalIcome);
-		return true;
+		_operateUserCurrency(investor,totalIncome);
+
 	}
 }
