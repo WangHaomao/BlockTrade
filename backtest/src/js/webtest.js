@@ -1,4 +1,3 @@
-var requestRes = GetRequest();
 App = {
   // web3Provider: null,
   // contracts: {},
@@ -23,12 +22,6 @@ App = {
       App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
       web3 = new Web3(App.web3Provider);
     }
-    // App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
-    // web3 = new Web3(App.web3Provider);
-    // web3.eth.getAccounts(function(error, accounts) {
-    //     console.log(accounts);
-    // });
-
     
     return App.initContract();
   },
@@ -65,36 +58,20 @@ App = {
     // Load contract data
     App.contracts.StrategyInvestment.deployed().then(function(instance) {
       electionInstance = instance;
-      return electionInstance.strategiesCount();
-    }).then(function(strategiesCount) {
+      return electionInstance.randomCount();
+    }).then(function(randomCount) {
       var candidatesResults = $("#candidatesResults");
       candidatesResults.empty();
 
-      var candidatesSelect = $('#candidatesSelect');
-      candidatesSelect.empty();
+      for (var i = 0; i < randomCount; i++) {
+        var x = i;
 
-      
-      
-      electionInstance.users(App.account).then(function(user) {
-          $("#accountMoney").html("Your Money: " + user[0]);
-      });
-
-      electionInstance.strategies(requestRes['sid']).then(function(strategy) {
-          var id = strategy[0];
-          var name = strategy[2];
-          var voteCount = strategy[3];
-          // Render candidate Result
-          // console.log(strategy[3]);
-          var candidateTemplate = "<tr><th id = \"strategyID\">" + id 
-                                + "</th><td>" + name 
-                                + "</td><td>" + voteCount
-                                + "</td><td>" + strategy[4] 
-                                + "</td><td>" + strategy[5]
-                                + "</td></tr>" 
+        electionInstance.randomNums(i).then(function(ran) {
+          var id = ran;
+          var candidateTemplate = "<tr><th>" + id +"</td></tr>" 
           candidatesResults.append(candidateTemplate);
-      });
-
-
+        });
+      }
       loader.hide();
       content.show();
     }).catch(function(error) {
@@ -103,12 +80,8 @@ App = {
   },
 
   investigate: function() {
-    var strategyId = $('#strategyID').val();
-    var principal = $('#principal').val();
-    /*add a check for principal*/
-
     App.contracts.StrategyInvestment.deployed().then(function(instance) {
-      return instance.invest(principal,strategyId, { from: App.account });
+      return instance.testRandom({from: App.account });
     }).then(function(result) {
       // Wait for votes to update
       // $("#content").hide();
@@ -126,15 +99,3 @@ $(function() {
     App.init();
   });
 });
-function GetRequest() {
-    var url = location.search; //获取url中"?"符后的字串
-    var theRequest = new Object();
-    if (url.indexOf("?") != -1) {
-        var str = url.substr(1);
-        strs = str.split("&");
-        for (var i = 0; i < strs.length; i++) {
-            theRequest[strs[i].split("=")[0]] = decodeURIComponent(strs[i].split("=")[1]);
-        }
-    }
-    return theRequest;
-};

@@ -21,12 +21,6 @@ App = {
       App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
       web3 = new Web3(App.web3Provider);
     }
-    // App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
-    // web3 = new Web3(App.web3Provider);
-    // web3.eth.getAccounts(function(error, accounts) {
-    //     console.log(accounts);
-    // });
-
     return App.initContract();
   },
 
@@ -68,9 +62,6 @@ App = {
       var candidatesResults = $("#candidatesResults");
       candidatesResults.empty();
 
-      var candidatesSelect = $('#candidatesSelect');
-      candidatesSelect.empty();
-
       for (var i = 0; i < strategiesCount; i++) {
         var x = i;
         console.log(electionInstance.strategies(i));
@@ -91,7 +82,6 @@ App = {
       console.warn(error);
     });
   }
-
 };
 
 $(function() {

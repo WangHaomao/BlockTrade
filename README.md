@@ -18,7 +18,7 @@ npm --version
 npm install -g truffle
 ```
 
-#### 3.  Ganache truffle
+#### 3.  Truffle Ganache 
 
 This is from **data store layer** for blockchain
 
@@ -35,7 +35,14 @@ truffle unbox pet-shop
 
 
 
-Writing …. 
+
+
+
+Preparing …. 
+
+
+
+
 
 
 

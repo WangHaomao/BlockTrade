@@ -25,7 +25,7 @@ contract("StrategyInvestment", function(accounts) {
 	it("Investment function test", function() {
 	    return StrategyInvestment.deployed().then(function(instance) {
 	      SIInstance = instance;
-	      money = 10;
+	      money = 20;
 	      strategyID = 2;
 
 
@@ -40,7 +40,7 @@ contract("StrategyInvestment", function(accounts) {
 	    }).then(function(user) {
 	      var money = user.holdCurrency;
 	      // console.log(money);
-	      assert.equal(money, 105);
+	      assert.equal(money, 118);
 	      // Try to vote again
 	      // return electionInstance.vote(candidateId, { from: accounts[1] });
 	    });
