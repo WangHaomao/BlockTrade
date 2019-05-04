@@ -26,7 +26,7 @@ contract StrategyInvestment{
 		bytes32 ownerName;
 		// int indicates; // simplfy it
 		
-		//indicates;
+		//indicates;index 6 ,7 ,8
 		int daily_return;
 		int sharpe_ratio;
 		int maximum_draw_down;
@@ -67,13 +67,36 @@ contract StrategyInvestment{
 		// }
 	}
 
+	function bytes32ToString(bytes32 x) public returns (string memory) {
+	    bytes memory bytesString = new bytes(32);
+	    uint charCount = 0;
+	    for (uint j = 0; j < 32; j++) {
+	        byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
+	        if (char != 0) {
+	            bytesString[charCount] = char;
+	            charCount++;
+	        }
+	    }
+	    bytes memory bytesStringTrimmed = new bytes(charCount);
+	    for (uint j = 0; j < charCount; j++) {
+	        bytesStringTrimmed[j] = bytesString[j];
+	    }
+	    return string(bytesStringTrimmed);
+	}
+
+	// function convertingToString(bytes32 hw)public returns(string memory){
+	// 	// bytes32 memory hw = "Hello World";
+	// 	string memory converted = string(hw);
+	// 	return converted;
+	// }
+
 	function _init() private{
 		/*add two users*/
 		address addr_index07 = 0x8473dB8d4106e66158673dE19C290E4516250dDc;
 		address addr_index03 = 0x73Ea460Ae904C3f0496f02Eea271eCeBd2fB0490;
 		
-		bytes32 user_name1 = "黄雨伞";
-		bytes32 user_name2 = "铁民";
+		bytes32 user_name1 = "铁民";
+		bytes32 user_name2 = "黄雨伞";
 
 
 		_addUser(addr_index03,user_name1);
@@ -180,7 +203,6 @@ contract StrategyInvestment{
 		if(investmentRes > 0){
 			investmentRes = (investmentRes *  principal) / 100;
 			if(strategyOwner != investor){
-
 				int dividendFee = investmentRes * strategies[sCount].dividendRate;
 				dividendFee = dividendFee / 100;
 				totalIncome = totalIncome + investmentRes - dividendFee;
@@ -194,7 +216,6 @@ contract StrategyInvestment{
 				totalIncome = totalIncome - investmentRes;
 			}
 		}
-
 		_operateUserCurrency(investor,totalIncome);
 	}
 }

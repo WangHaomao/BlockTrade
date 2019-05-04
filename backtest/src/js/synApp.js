@@ -49,8 +49,8 @@ App = {
 
   loadContract: async () => {
     // Create a JavaScript version of the smart contract
-    const todoList = await $.getJSON('StrategyInvestment.json')
-    App.contracts.StrategyInvestment = TruffleContract(todoList)
+    const StrategyInvestment = await $.getJSON('StrategyInvestment.json')
+    App.contracts.StrategyInvestment = TruffleContract(StrategyInvestment)
     App.contracts.StrategyInvestment.setProvider(App.web3Provider)
 
     // Hydrate the smart contract with values from the blockchain
@@ -81,23 +81,20 @@ App = {
     var loader = $("#loader");
     var content = $("#content");
 
-    var candidatesResults = $("#candidatesResults");
+    var candidatesResults = $("#strategiesList");
     candidatesResults.empty();
-
-    loader.show();
-    content.hide();
 
     // Load the total task count from the blockchain
     const strategiesCount = await App.StrategyInvestment.strategiesCount();
     // const $taskTemplate = $('.taskTemplate')
 
     // Render out each task with a new task template
-    for (var i = 0; i <= strategiesCount; i++) {
+    for (var i = 0; i < strategiesCount; i++) {
       // Fetch the task data from the blockchain
-      const strategie = await App.StrategyInvestment.strategies(i);
-      const id = strategie[0].toNumber();
-      const name = strategie[2];
-      const voteCount = strategie[3];
+      const strategy = await App.StrategyInvestment.strategies(i);
+      const id = strategy[0].toNumber();
+      const name = strategy[2];
+      const dividendRate = strategy[3];
 
       // Create the html for the task
       // const $newTaskTemplate = $taskTemplate.clone()
@@ -116,13 +113,22 @@ App = {
 
       // Show the task
       // $newTaskTemplate.show()
-      var candidateTemplate = "<tr><th>" + id + "</th><td><a onclick='toStrategy("+ id +")'>" + name + "</a></td><td>" + voteCount + "</td></tr>"
+      var candidateTemplate = "<tr><th>" + id 
+                            + "</th><td><a onclick='App.toStrategy("+ id +")'>" + name 
+                            + "</td><td>" + dividendRate + "%" 
+                            + "</td><td>" + strategy[6].toNumber() / 100
+                            + "</td><td>" + strategy[7].toNumber() / 100
+                            + "</td><td>" + strategy[8].toNumber() / 100
+                            + "</td><td>" + web3.toUtf8(strategy[5])
+                            + "</td></tr>"
       candidatesResults.append(candidateTemplate);
 
 
     }
-    loader.hide();
-    content.show();
+    // App.setLoading(false);
+  },
+  toStrategy: async (sid) => {
+    window.location.href = "/strategy.html?sid=" + sid;
   },
 
   createTask: async () => {

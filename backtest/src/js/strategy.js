@@ -1,131 +1,141 @@
 var requestRes = GetRequest();
 App = {
-  // web3Provider: null,
-  // contracts: {},
-  // account: '0x0',
-  // hasVoted: false,
-  web3Provider: null,
+  loading: false,
   contracts: {},
 
-  init: function() {
-
-    return App.initWeb3();
+  load: async () => {
+    await App.loadWeb3()
+    await App.loadAccount()
+    await App.loadContract()
+    await App.render()
   },
 
-  initWeb3: function() {
-    // TODO: refactor conditional
+  // https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
+  loadWeb3: async () => {
     if (typeof web3 !== 'undefined') {
-      // If a web3 instance is already provided by Meta Mask.
-      App.web3Provider = web3.currentProvider;
-      web3 = new Web3(web3.currentProvider);
+      App.web3Provider = web3.currentProvider
+      web3 = new Web3(web3.currentProvider)
     } else {
-      // Specify default instance if no web3 instance provided
-      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
-      web3 = new Web3(App.web3Provider);
+      window.alert("Please connect to Metamask.")
     }
-    // App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
-    // web3 = new Web3(App.web3Provider);
-    // web3.eth.getAccounts(function(error, accounts) {
-    //     console.log(accounts);
-    // });
+    // Modern dapp browsers...
+    if (window.ethereum) {
+      window.web3 = new Web3(ethereum)
+      try {
+        // Request account access if needed
+        await ethereum.enable()
+        // Acccounts now exposed
+        web3.eth.sendTransaction({/* ... */})
+      } catch (error) {
+        // User denied account access...
+      }
+    }
+    // Legacy dapp browsers...
+    else if (window.web3) {
+      App.web3Provider = web3.currentProvider
+      window.web3 = new Web3(web3.currentProvider)
+      // Acccounts always exposed
+      web3.eth.sendTransaction({/* ... */})
+    }
+    // Non-dapp browsers...
+    else {
+      console.log('Non-Ethereum browser detected. You should consider trying MetaMask!')
+    }
+  },
 
+  loadAccount: async () => {
+    // Set the current blockchain account
+    App.account = web3.eth.accounts[0]
+  },
+
+  loadContract: async () => {
+    // Create a JavaScript version of the smart contract
+    const StrategyInvestment = await $.getJSON('StrategyInvestment.json')
+    App.contracts.StrategyInvestment = TruffleContract(StrategyInvestment)
+    App.contracts.StrategyInvestment.setProvider(App.web3Provider)
+
+    // Hydrate the smart contract with values from the blockchain
+    App.StrategyInvestment = await App.contracts.StrategyInvestment.deployed()
+  },
+
+  render: async () => {
+    // Prevent double render
+    if (App.loading) {
+      return
+    }
+
+    // Update app loading state
+    App.setLoading(true)
+
+    // Render Account
+    const user = await App.StrategyInvestment.users(App.account)
+    $('#accountAddress').html(web3.toUtf8(user[0]));
     
-    return App.initContract();
+    // console.log(userMoney[1]);
+    $('#accountMoney').html(user[1].toNumber());
+
+    // Render Tasks
+    await App.renderTasks()
+
+    // Update loading state
+    App.setLoading(false)
   },
 
-  initContract: function() {
-    $.getJSON("StrategyInvestment.json", function(siData) {
-      // Instantiate a new truffle contract from the artifact
-      App.contracts.StrategyInvestment = TruffleContract(siData);
-      // Connect provider to interact with contract
-      App.contracts.StrategyInvestment.setProvider(App.web3Provider);
+  renderTasks: async () => {
 
-      // App.listenForEvents();
-
-      return App.render();
-    });
-  },
-
-  render: function() {
-    var electionInstance;
     var loader = $("#loader");
     var content = $("#content");
 
-    loader.show();
-    content.hide();
+    var candidatesResults = $("#strategy");
+    candidatesResults.empty();
 
-    // Load account data
-    web3.eth.getCoinbase(function(err, account) {
-      if (err == null) {
-        App.account = account;
-        $("#accountAddress").html("Your Account: " + account);
-      }
-    });
-
-    // Load contract data
-    App.contracts.StrategyInvestment.deployed().then(function(instance) {
-      electionInstance = instance;
-      return electionInstance.strategiesCount();
-    }).then(function(strategiesCount) {
-      var candidatesResults = $("#candidatesResults");
-      candidatesResults.empty();
-
-      var candidatesSelect = $('#candidatesSelect');
-      candidatesSelect.empty();
-
-      
-      
-      electionInstance.users(App.account).then(function(user) {
-          $("#accountMoney").html("Your Money: " + user[0]);
-      });
-
-      electionInstance.strategies(requestRes['sid']).then(function(strategy) {
-          var id = strategy[0];
-          var name = strategy[2];
-          var voteCount = strategy[3];
-          // Render candidate Result
-          // console.log(strategy[3]);
-          var candidateTemplate = "<tr><th id = \"strategyID\">" + id 
-                                + "</th><td>" + name 
-                                + "</td><td>" + voteCount
-                                + "</td><td>" + strategy[4] 
-                                + "</td><td>" + strategy[5]
-                                + "</td></tr>" 
-          candidatesResults.append(candidateTemplate);
-      });
-
-
-      loader.hide();
-      content.show();
-    }).catch(function(error) {
-      console.warn(error);
-    });
+    // Load the total task count from the blockchain
+    const strategy = await App.StrategyInvestment.strategies(requestRes['sid']);
+    const id = strategy[0].toNumber();
+    const name = strategy[2];
+    const dividendRate = strategy[3];
+    var candidateTemplate = "<tr><th>" + id 
+                          + "</th><td><a onclick='App.toStrategy("+ id +")'>" + name 
+                          + "</td><td>" + dividendRate + "%" 
+                          + "</td><td>" + strategy[6].toNumber() / 100
+                          + "</td><td>" + strategy[7].toNumber() / 100
+                          + "</td><td>" + strategy[8].toNumber() / 100
+                          + "</td><td>" + web3.toUtf8(strategy[5])
+                          + "</td></tr>"
+    candidatesResults.append(candidateTemplate);
+  },
+  toStrategy: async (sid) => {
+    window.location.href = "/strategy.html?sid=" + sid;
   },
 
-  investigate: function() {
-    var strategyId = $('#strategyID').val();
-    var principal = $('#principal').val();
-    /*add a check for principal*/
+  invest: async () => {
+    App.setLoading(true)
 
-    App.contracts.StrategyInvestment.deployed().then(function(instance) {
-      return instance.invest(principal,strategyId, { from: App.account });
-    }).then(function(result) {
-      // Wait for votes to update
-      // $("#content").hide();
-      // $("#loader").show();
-      console.log(result);
-    }).catch(function(err) {
-      console.error(err);
-    });
+    const strategyId = requestRes['sid'];
+    const principal = $('#principal').val();
+    await App.StrategyInvestment.invest(principal,strategyId, { from: App.account });
+    window.location.reload();
+  },
+
+  setLoading: (boolean) => {
+    App.loading = boolean
+    const loader = $('#loader')
+    const content = $('#content')
+    if (boolean) {
+      loader.show()
+      content.hide()
+    } else {
+      loader.hide()
+      content.show()
+    }
   }
+}
 
-};
-
-$(function() {
-  $(window).load(function() {
-    App.init();
-  });
-});
+$(() => {
+  $(window).load(() => {
+    App.load()
+  })
+})
 function GetRequest() {
     var url = location.search; //获取url中"?"符后的字串
     var theRequest = new Object();

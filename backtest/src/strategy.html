@@ -33,18 +33,20 @@
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Name</th>
-                  <th scope="col">Dividend</th>
-                  <th scope="col">Owner Address</th>
-                  <th scope="col">indicates</th>
+                  <th scope="col">Dividend Rate</th>
+                  <th scope="col">daily return</th>
+                  <th scope="col">sharpe ratio</th>
+                  <th scope="col">maximum draw down</th>
+                  <th scope="col">Developer</th>
                 </tr>
               </thead>
-              <tbody id="candidatesResults">
+              <tbody id="strategy">
               </tbody>
             </table>
             <hr/>
-            <form onSubmit="App.investigate(); return false;">
+            <form onSubmit="App.invest(); return false;">
               <div class="form-group">
-                <label >investigate</label>
+                <label >invest</label>
               </div>
               <div class="form-group">
                 <label for="candidatesSelect">Invest Money</label>
