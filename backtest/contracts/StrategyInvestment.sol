@@ -9,7 +9,6 @@ contract StrategyInvestment{
 		uint256 tDate;
 		int investResult;
 	}
-	
 	// struct Indicates{
 	// 	int daily_return;
 	// 	int sharpe_ratio;
@@ -62,7 +61,7 @@ contract StrategyInvestment{
 	/*构造函数*/
 	constructor() public{
 		_init();
-		require(!users[msg.sender].isValid);
+		// require(users[msg.sender].isValid);
 		// if(!users[msg.sender].isValid){
 		// 	_addUser(msg.sender);
 		// }
@@ -157,8 +156,6 @@ contract StrategyInvestment{
 	// function update() public{
 	// 	/**/
 	// }
-
-
 	function getRandomNum() public returns (int){
 		// uint o1 = 2;
 		int randomnumber = int(keccak256(abi.encodePacked(now, msg.sender, nonce))) % 100;
@@ -189,7 +186,6 @@ contract StrategyInvestment{
 				totalIncome = totalIncome + investmentRes - dividendFee;
 				_operateUserCurrency(strategyOwner,dividendFee);
 			}
-			
 		}else{
 			investmentRes = (-1 * investmentRes *  principal) / 100;
 			if(investmentRes >  principal){

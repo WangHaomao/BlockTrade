@@ -6,10 +6,15 @@ Also a tutorial of Dapps development.
 ## Preparing before start
 
 ### Applications and packages
-#### 1. npm
+#### 1. nodejs & npm
 
 ```shell
-npm --version
+brew install node
+```
+
+```shell
+npm -v
+node -v
 ```
 
 #### 2. truffle
