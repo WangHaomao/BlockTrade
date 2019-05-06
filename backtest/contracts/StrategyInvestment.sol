@@ -153,9 +153,7 @@ contract StrategyInvestment{
 		strategies[strategiesCount].daily_return = in1; // simplfy it
 		strategies[strategiesCount].sharpe_ratio = in2; // simplfy it
 		strategies[strategiesCount].maximum_draw_down = in3; // simplfy it
-
-
-
+		
 		strategies[strategiesCount].isValid = true;
 		strategies[strategiesCount].trCount = 0;
 
