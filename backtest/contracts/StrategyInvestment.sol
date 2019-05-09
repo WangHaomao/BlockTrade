@@ -1,20 +1,33 @@
 pragma solidity ^0.5.0;
 
-
+/*
+contract Token{
+	// ...
+}
+contract OurCurrency is Token{
+	// ...
+}
+contract User{
+	// ...
+}
+contract Transcation{
+	// ...
+}
+contract Indicates{
+	// ...
+}
+*/
 contract StrategyInvestment{
 
 	struct Transcation{
-		address fromAddr;
-		address toAddr;
-		uint256 tDate;
-		int investResult;
+		address fromAddr; // 0
+		bytes32 toAddr;   // 1
+		uint256 tDate;	  // 2
+		int investResult; // 3
+		int dividendFee;  // 4
+
+		string strategyName; // 5
 	}
-	// struct Indicates{
-	// 	int daily_return;
-	// 	int sharpe_ratio;
-	// 	int maximum;
-	// 	int draw_down;
-	// }
 
 	struct Strategy{
 		uint ID;
@@ -34,28 +47,35 @@ contract StrategyInvestment{
 
 		bool isValid;
 		uint trCount;
-		mapping(uint => Transcation) transcations;
+
+		uint transcationsCount;
+		mapping(uint => uint) transcations_ids;
 	}
 	struct User{
-		// 拥有的虚拟货币
+		
 		bytes32 username;
-		int holdCurrency;
+		int holdCurrency; // 拥有的虚拟货币 ( our token)
 		uint strategiesCount;
 		uint validSCount;
-		// 不知道需不需要Hash
+		// may need to Hash
 		address userAddress;
 		bool isValid;
 
+		uint transcationsCount;
 		mapping(uint => uint) strategies_ids;
+		// mapping(uint => uint) transcations_ids;
+		uint [] transcations_ids;
 	}
 	int nonce = 1;
 	// mapping (uint => int) public randomNums;
 	// uint public randomCount;
 
-
 	mapping (bytes32 => address) public usersname_to_address; 
 	mapping (address => User) public users;
 	mapping (uint => Strategy) public strategies;
+	mapping (uint => Transcation) public transcations;
+
+	uint public transcationsCount;
 	uint public strategiesCount;
 
 	/*构造函数*/
@@ -84,32 +104,38 @@ contract StrategyInvestment{
 	    return string(bytesStringTrimmed);
 	}
 
-	// function convertingToString(bytes32 hw)public returns(string memory){
-	// 	// bytes32 memory hw = "Hello World";
-	// 	string memory converted = string(hw);
-	// 	return converted;
-	// }
-
 	function _init() private{
 		/*add two users*/
 		address addr_index07 = 0x8473dB8d4106e66158673dE19C290E4516250dDc;
 		address addr_index03 = 0x73Ea460Ae904C3f0496f02Eea271eCeBd2fB0490;
+		address addr_index05 = 0xfc908D6E53DaaeA0765d41A908001093abb0Ddb9;
+		address addr_index06 = 0xeBeE3C3A55072e9581c1D34fF34C56b2De1ec5E2;
 		
-		bytes32 user_name1 = "铁民";
-		bytes32 user_name2 = "黄雨伞";
+		bytes32 user_name1 = "Alice";
+		bytes32 user_name2 = "Bob";
+		bytes32 user_name3 = "Harry";
+		bytes32 user_name4 = "黄雨伞";
 
 
 		_addUser(addr_index03,user_name1);
 		_addUser(addr_index07,user_name2);
+		_addUser(addr_index05,user_name3);
+		_addUser(addr_index06,user_name4);
 
-		string memory name1 = "strategy1";
-		string memory name2 = "WANG YUxian s incoming strategy";
-		string memory name3 = "Li Haoyang的超级无敌宇宙策略";
+		string memory name1 = "YUxian 1st ssssuper strategy";
+		string memory name2 = "UST Genius";
+		string memory name3 = "soooo cool";
+		string memory name4 = "Tai Po Tsai village super one";
+		string memory name5 = "HK good strategy";
+		string memory name6 = "科大扛把子";
 
 		
-		_addStrategy(addr_index07,name1,5,1,2,3);
-		_addStrategy(addr_index07,name2,5,1,2,3);
-		_addStrategy(addr_index03,name3,10,1,2,3);
+		_addStrategy(addr_index07,name1,15,50,1000,700);
+		_addStrategy(addr_index03,name2,4,40,1200,600);
+		_addStrategy(addr_index03,name3,10,30,1400,500);
+		_addStrategy(addr_index05,name4,7,-52,1900,300);
+		_addStrategy(addr_index05,name5,8,45,2000,1000);
+		_addStrategy(addr_index06,name6,20,21,5200,300);
 	}
 
 	function _addUser(address _addr, bytes32 _uname) private returns(bool){
@@ -117,7 +143,7 @@ contract StrategyInvestment{
 		if(users[_addr].isValid) return false;
 		users[_addr].username = _uname;
 		users[_addr].userAddress = _addr;
-		users[_addr].holdCurrency = 100; // 100.00 actually
+		users[_addr].holdCurrency = 1000; // 100.00 actually
 		users[_addr].strategiesCount = 0;
 		users[_addr].validSCount = 0;
 		users[_addr].isValid = true;
@@ -164,16 +190,28 @@ contract StrategyInvestment{
 		users[addr].strategiesCount++;
 		strategiesCount++;
 	}
-	function _addTranscation(address fromAddr, address toAddr, int res, uint sId) private{
+
+	function _addTranscation(address fromAddr, bytes32 toAddr, uint sId, int dividendFee,int res) private{
 		
-		uint trId = strategies[sId].trCount;
+		transcations[transcationsCount].fromAddr = fromAddr;
+		transcations[transcationsCount].toAddr = toAddr;
+		transcations[transcationsCount].tDate = now;
+		transcations[transcationsCount].investResult = res;
+		transcations[transcationsCount].strategyName = strategies[sId].Name;
+		transcations[transcationsCount].dividendFee = dividendFee;
 
-		strategies[sId].transcations[trId].fromAddr = fromAddr;
-		strategies[sId].transcations[trId].toAddr = toAddr;
-		strategies[sId].transcations[trId].tDate = now;
-		strategies[sId].transcations[trId].investResult = res;
+		uint scount = strategies[sId].transcationsCount;
+		strategies[sId].transcations_ids[scount] = transcationsCount;
+		uint ucount = users[fromAddr].transcationsCount;
+		// users[fromAddr].transcations_ids[ucount] = transcationsCount;
+		users[fromAddr].transcations_ids.push(transcationsCount);
 
+		transcationsCount++;
+		strategies[sId].transcationsCount++;
+
+		users[fromAddr].transcationsCount++;
 	}
+
 	// function update() public{
 	// 	/**/
 	// }
@@ -190,21 +228,27 @@ contract StrategyInvestment{
 			principal: investment principal
 			sCount: strategiesCount
 		*/
+
+
 		address strategyOwner = strategies[sCount].ownerAddress;
 		address investor = msg.sender;
+		_operateUserCurrency(investor,-1 * principal);
 
 		int investmentRes = getRandomNum();
 
-
+		// 500
 		int totalIncome = principal;
+		int dividendFee = 0;
 
 		if(investmentRes > 0){
 			investmentRes = (investmentRes *  principal) / 100;
 			if(strategyOwner != investor){
-				int dividendFee = investmentRes * strategies[sCount].dividendRate;
+				dividendFee = investmentRes * strategies[sCount].dividendRate;
 				dividendFee = dividendFee / 100;
-				totalIncome = totalIncome + investmentRes - dividendFee;
+				totalIncome = principal + investmentRes - dividendFee;
 				_operateUserCurrency(strategyOwner,dividendFee);
+			}else{
+				totalIncome = principal + investmentRes;
 			}
 		}else{
 			investmentRes = (-1 * investmentRes *  principal) / 100;
@@ -215,5 +259,6 @@ contract StrategyInvestment{
 			}
 		}
 		_operateUserCurrency(investor,totalIncome);
+		_addTranscation(investor,users[strategyOwner].username,sCount,dividendFee,totalIncome);
 	}
 }

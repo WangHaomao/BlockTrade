@@ -62,30 +62,42 @@ App = {
       console.log(user);
       $('#accountAddress').html(web3.toUtf8(user[0]) + " / " + user[1]);
       $('#accountMoney').html(user[1].toNumber());
-      return InvestmentInstance.strategiesCount();
-    }).then(function(strategiesCount) {
-      var strategiesList = $("#strategiesList");
-      strategiesList.empty();
+      App.Username = web3.toUtf8(user[0]);
+      console.log(user[6]);
+      return InvestmentInstance.transcationsCount();
 
-      for (var i = 0; i < strategiesCount; i++) {
-        var x = i;
-        console.log(InvestmentInstance.strategies(i));
+    }).then(function(transcationsCount) {
+      var HTMLrecords = $("#records");
+      HTMLrecords.empty();
+      console.log(transcationsCount);
+      for (var i = 0; i < transcationsCount; i++) {
+        InvestmentInstance.transcations(i).then(function(transcation){
+          if(transcation[0] == App.account){
+            console.log(App.Username);
+            console.log(transcation[3].toNumber());
+            console.log(transcation[4].toNumber());
 
-        InvestmentInstance.strategies(i).then(function(strategy) {
-          const id = strategy[0].toNumber();
-          const name = strategy[2];
-          const dividendRate = strategy[3];
-          // Render candidate Result
-          // console.log(strategy[3]);
-          var strategyDetail = "<tr><th>" + id 
-                            + "</th><td><a onClick ='toStrategy("+ id +")'>" + name 
-                            + "</td><td>" + dividendRate + "%" 
-                            + "</td><td>" + strategy[6].toNumber() / 100
-                            + "</td><td>" + strategy[7].toNumber() / 100
-                            + "</td><td>" + strategy[8].toNumber() / 100
-                            + "</td><td>" + web3.toUtf8(strategy[5])
-                            + "</td></tr>"
-          strategiesList.append(strategyDetail);
+            var record =  "<tr><th>" + transcation[5] 
+                        + "</th><td>" + App.Username 
+                        + "</td><td>" + web3.toUtf8(transcation[1])
+                        + "</td><td>" + transcation[3].toNumber()
+                        + "</td><td>" + transcation[4].toNumber()
+                        + "</td><td>" + transcation[2]
+                        + "</td></tr>"
+
+            HTMLrecords.append(record);
+
+
+
+            console.log(web3.toUtf8(transcation[1]));
+            // InvestmentInstance.users(transcation[1]).then(function(user2){
+            //   var name2 = web3.toUtf8(user2[0]);
+            //   console.log(name2);
+            // });
+
+            // console.log(name2);
+
+          }
         });
       }
       loader.hide();
@@ -101,7 +113,3 @@ $(function() {
     App.init();
   });
 });
-
-function toStrategy(sid){
-  window.location.href = "/strategyDetail.html?sid=" + sid;
-};

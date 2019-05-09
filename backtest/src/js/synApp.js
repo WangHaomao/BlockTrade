@@ -14,6 +14,7 @@ App = {
     if (typeof web3 !== 'undefined') {
       App.web3Provider = web3.currentProvider
       web3 = new Web3(web3.currentProvider)
+      console.log('....');
     } else {
       window.alert("Please connect to Metamask.")
     }
@@ -67,7 +68,14 @@ App = {
     App.setLoading(true)
 
     // Render Account
-    $('#account').html(App.account)
+    console.log(App.account)
+    console.log(App.StrategyInvestment.users(App.account))
+    const user = await App.StrategyInvestment.users(App.account)
+    console.log(user[0])
+    $('#accountAddress').html(web3.toUtf8(user[0]));
+    
+    // console.log(userMoney[1]);
+    $('#accountMoney').html(user[1].toNumber());
 
     // Render Tasks
     await App.renderTasks()
