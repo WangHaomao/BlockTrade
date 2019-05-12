@@ -77,12 +77,15 @@ App = {
             console.log(transcation[3].toNumber());
             console.log(transcation[4].toNumber());
 
+            var ccdate = new Date(1000*transcation[2].toNumber());
+            ccdate = format(ccdate, 'yyyy-MM-dd hh:mm:ss')
+
             var record =  "<tr><th>" + transcation[5] 
                         + "</th><td>" + App.Username 
                         + "</td><td>" + web3.toUtf8(transcation[1])
                         + "</td><td>" + transcation[3].toNumber()
                         + "</td><td>" + transcation[4].toNumber()
-                        + "</td><td>" + transcation[2]
+                        + "</td><td>" + ccdate
                         + "</td></tr>"
 
             HTMLrecords.append(record);
@@ -113,3 +116,20 @@ $(function() {
     App.init();
   });
 });
+
+format = function date2str(x, y) {
+  var z = {
+      M: x.getMonth() + 1,
+      d: x.getDate(),
+      h: x.getHours(),
+      m: x.getMinutes(),
+      s: x.getSeconds()
+  };
+  y = y.replace(/(M+|d+|h+|m+|s+)/g, function(v) {
+      return ((v.length > 1 ? "0" : "") + eval('z.' + v.slice(-1))).slice(-2)
+  });
+
+  return y.replace(/(y+)/g, function(v) {
+      return x.getFullYear().toString().slice(-v.length)
+  });
+};

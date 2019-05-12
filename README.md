@@ -39,23 +39,80 @@ truffle unbox pet-shop
 
 
 
+## Folder Structures
+- BlockTrade
+    - blocktrade
+        - build
+            - contracts
+                - ...
+                - StrategyInvestment.json   // compiled contracts file
+        - contracts
+            - Migrations.sol
+            - StrategyInvestment.sol    // smart contract
+        - migrations
+            - 1_initial_migration.js
+            - 2_deploy_contracts.js     // deploy config
+        - node_modules
+        - src
+            - css
+            - js
+            - img
+            - ...
+            - *.html
+        - test
+            - StrategyInvestment.js
+        - bs-config.json
+        - package-lock.json
+        - package.json
+        - truffle-config.js
+## Dapp Structures
+### Web pages
+- css
+- js
+- img
+- ...
+- index.html
+- strategiesList.html
+    - strategyDetail.html
+- tradeRecords.html
+### Smart contract
+#### Main classes
+- User
+    - name 
+ - hold currency
+    - address
+    - strategies_ids (mapping)
+ - transcations_ids (mapping)
+    - ...
+- Strategy
+    - ID
+ - ID in user
+ - name
+ - dividend(reward) rate // the strategy owner will get dividendRate * income if income > 0.
+ - owner(developer) address
+ - indicates // Simplified version
+ - transcations_ids(mapping)
+ - ...
+- Transcation
+ - address from
+ - address traget
+ - date
+ - principle
+ - invest result
+ - dividend fee
+    - strategy id
+    - ...
+- mapping (address => User) public users;
+- mapping (uint => Strategy) public strategies;
+- mapping (uint => Transcation) public transcations;
 
-
-
-
-Preparing …. 
-
-
-
-
-
-
-
-
-
-
-
-
+#### Main function
+- function _addUser() private returns(bool)
+- function addStrategy() private returns(bool) public
+- function _addStrategy() private
+- function _addTranscation()private returns(bool) private
+- function _operateUserCurrency() private
+- function invest() returns(bool) public
 
 ### Notes:
 

@@ -16,6 +16,7 @@ contract Transcation{
 contract Indicates{
 	// ...
 }
+...
 */
 contract StrategyInvestment{
 
@@ -215,7 +216,7 @@ contract StrategyInvestment{
 	// function update() public{
 	// 	/**/
 	// }
-	function getRandomNum() public returns (int){
+	function _getInvestmentResult() private returns (int){
 		// uint o1 = 2;
 		int randomnumber = int(keccak256(abi.encodePacked(now, msg.sender, nonce))) % 100;
 	    // randomNums[randomCount] = randomnumber;
@@ -226,17 +227,17 @@ contract StrategyInvestment{
 	function invest(int principal, uint sCount) public {
 		/*
 			principal: investment principal
-			sCount: strategiesCount
+			sCount: strategiesID
 		*/
-
-
 		address strategyOwner = strategies[sCount].ownerAddress;
 		address investor = msg.sender;
+
+		// principal cost
 		_operateUserCurrency(investor,-1 * principal);
 
-		int investmentRes = getRandomNum();
+		/*get result*/
 
-		// 500
+		int investmentRes = _getInvestmentResult();
 		int totalIncome = principal;
 		int dividendFee = 0;
 
@@ -259,6 +260,6 @@ contract StrategyInvestment{
 			}
 		}
 		_operateUserCurrency(investor,totalIncome);
-		_addTranscation(investor,users[strategyOwner].username,sCount,dividendFee,totalIncome);
+		_addTranscation(investor,users[strategyOwner].username,sCount,dividendFee,totalIncome - principal);
 	}
 }

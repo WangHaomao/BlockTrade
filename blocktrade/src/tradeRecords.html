@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Strategies List</title>
+  <title>Records</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Font Awesome -->
@@ -167,7 +167,7 @@
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <li class="nav-item">
-            <a href="../Strategies List.html" class="nav-link active">
+            <a href="../StrategiesList.html" class="nav-link">
               <i class="nav-icon fa fa-th"></i>
               <p>
                 Strategies List
@@ -184,7 +184,7 @@
             </a>
           </li>
 
-          <li class="nav-item has-treeview">
+          <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-edit"></i>
               <p>
@@ -193,14 +193,14 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
-              <li class="nav-item active">
+              <li class="nav-item">
                 <a href="../forms/general.html" class="nav-link">
                   <i class="fa fa-circle-o nav-icon"></i>
                   <p>My Strages</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="tradeRecords.html" class="nav-link">
+                <a href="tradeRecords.html" class="nav-link active">
                   <i class="fa fa-circle-o nav-icon"></i>
                   <p>Trade recorders</p>
                 </a>
@@ -221,12 +221,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Strategies</h1>
+            <!-- <h1>Strategies</h1> -->
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Strategies</li>
+              <li class="breadcrumb-item active">Records</li>
             </ol>
           </div>
         </div>
@@ -237,19 +237,14 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-12">
-            <div class="callout callout-info">
-              <h5><i class="fa fa-money"></i> Balance: <span id="accountMoney"></span></h5>
-            </div>
-
-
             <!-- Main content -->
             <div class="invoice p-3 mb-3">
               <!-- title row -->
               <div class="row">
                 <div class="col-12">
                   <h4>
-                    <i class="fa fa-globe"></i> Strategies List
-                    <small class="float-right" id="current"></small>
+                    <i class="fa fa-recorder"></i> Investment records
+                    <small class="float-right" id = "current"></small>
                   </h4>
                 </div>
                 <!-- /.col -->
@@ -264,16 +259,15 @@
                   <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>Strategy_ID</th>
-                        <th>profit</th>
-                        <th>Reward</th>
-                        <th>daily return</th>
-                        <th>maximum drawdown</th>
-                        <th>sharp ratio</th>
+                        <th>strategy name</th>
+                        <th>investor</th>
                         <th>developer</th>
+                        <th>invest result</th>
+                        <th>dividend fee</th>
+                        <th>date</th>
                     </tr>
                     </thead>
-                    <tbody id="strategiesList">
+                    <tbody id="records">
                     
                     </tbody>
                   </table>
@@ -323,8 +317,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="js/web3.min.js"></script>
 <script src="js/truffle-contract.js"></script>
+<script src="js/tradeRecords.js"></script>
 <!-- <script src="js/app.js"></script> -->
-<script src="js/app.js"></script>
 <!-- Bootstrap 4 -->
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- FastClick -->
@@ -334,7 +328,23 @@
 <!-- AdminLTE for demo purposes -->
 <script src="dist/js/demo.js"></script>
 <script type="text/javascript">
-var today = new Date();
+format = function date2str(x, y) {
+  var z = {
+      M: x.getMonth() + 1,
+      d: x.getDate(),
+      h: x.getHours(),
+      m: x.getMinutes(),
+      s: x.getSeconds()
+  };
+  y = y.replace(/(M+|d+|h+|m+|s+)/g, function(v) {
+      return ((v.length > 1 ? "0" : "") + eval('z.' + v.slice(-1))).slice(-2)
+  });
+
+  return y.replace(/(y+)/g, function(v) {
+      return x.getFullYear().toString().slice(-v.length)
+  });
+}
+var today = format(new Date(), 'yyyy-MM-dd hh:mm:ss')
 $('#current').html(today);
 </script>
 
